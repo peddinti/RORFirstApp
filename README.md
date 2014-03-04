@@ -2,4 +2,4 @@
 
 This is the first application for the
 [*Ruby on Rails Tutorial*](http://railstutorial.org/)
-by [Viswa Mani Kiran](http://http://viswamani.co.nr).
+by [Viswa Mani Kiran](http://viswamani.co.nr).
