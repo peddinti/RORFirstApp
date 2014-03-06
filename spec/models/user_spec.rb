@@ -1,10 +1,13 @@
 require 'spec_helper'
 
 describe User do
-  before {@user = User.new(email: "testuser@test.com", name: "Test User")}
+  before {@user = User.new(email: "testuser@test.com", name: "Test User", password: "testPassword", password_confirmation: "testPassword")}
   subject {@user}
   it { should respond_to(:name) }
   it { should respond_to(:email)}
+  it { should respond_to(:password_digest) }
+  it { should respond_to(:password) }
+  it { should respond_to(:password_confirmation) }
   
   it {should be_valid}
   
@@ -49,8 +52,45 @@ describe User do
       dup_user = @user.dup
       # since original email address is in lower case we need to ensure duplication works with uppercase
       dup_user.email = dup_user.email.upcase
+      # this action is performed after
       dup_user.save
     end
     it {should_not be_valid}
+  end
+  
+  describe "when password is not present" do
+    before do 
+      @user.password = " "
+      @user.password_confirmation = " "
+    end
+    it {should_not be_valid}
+  end
+  
+  describe "short password" do
+    before do
+      @user.password = "a" * 5
+      @user.password_confirmation = @user.password
+    end
+    it {should be_invalid}
+  end
+  
+  describe "when passwords dont match" do
+    before {@user.password = @user.password + "a"}
+    it {should_not be_valid}
+  end
+  
+  describe "return value of authenticate method" do
+    before {@user.save}
+    let(:found_user) {User.find_by(email: @user.email)}
+    
+    describe "with valid password" do
+      it {should eq found_user.authenticate(@user.password)}
+    end
+    
+    describe "with invalid password" do
+      let(:invalid_user) {found_user.authenticate(@user.password+"a")}
+      it {should_not eq invalid_user}
+      specify { expect(invalid_user).to be_false}
+    end
   end
 end

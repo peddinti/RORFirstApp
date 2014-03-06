@@ -22,6 +22,9 @@ gem 'sass-rails', '4.0.1'
 # Use Sass bootstrap for stylesheets
 gem 'bootstrap-sass', '2.3.2.0'
 
+# Use bcrypt for secure passwords
+gem 'bcrypt-ruby', '3.1.2'
+
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '2.1.1'
 
