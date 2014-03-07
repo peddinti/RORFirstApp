@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  has_many :microposts
+  has_many :microposts, dependent: :destroy
   before_create :create_remember_token
   before_save {self.email = self.email.downcase}
   validates :name, presence: true, length: {maximum: 50}
@@ -18,6 +18,10 @@ class User < ActiveRecord::Base
   
   def User.new_remember_token
     SecureRandom.urlsafe_base64
+  end
+  
+  def feed
+    Micropost.where("user_id = ?" , id)
   end
   
   private

@@ -67,6 +67,16 @@ describe "AuthenticationPages" do
       before { visit users_path }
       it { should have_title('Sign in') }
     end
+    
+    describe "creating a micropost" do
+      before { post microposts_path }
+      specify { expect(response).to redirect_to(signin_url)}
+    end
+    
+    describe "delete a micropost" do
+      before { delete micropost_path(FactoryGirl.create(:micropost))}
+      specify {expect(response).to redirect_to(signin_url)}
+    end
   end
   
   describe "wrong user" do

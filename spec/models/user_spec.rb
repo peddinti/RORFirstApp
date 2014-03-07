@@ -9,6 +9,7 @@ describe User do
   it { should respond_to(:password) }
   it { should respond_to(:remember_token) }
   it { should respond_to(:password_confirmation) }
+  it { should respond_to(:microposts)}
   
   it {should be_valid}
   
@@ -98,5 +99,30 @@ describe User do
   describe "remember token" do
     before { @user.save }
     its(:remember_token) { should_not be_blank }
+  end
+  
+  describe "microposts association" do
+    before { @user.save }
+    let!(:older_post) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
+    end
+    let!(:newer_post) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.hour.ago)
+    end
+
+    it "should have the right microposts in the right order" do
+      expect(@user.microposts.to_a).to eq [newer_post, older_post]
+    end
+    
+    describe "status" do
+      let(:unfollowed_post) do
+        FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
+      end
+
+      its(:feed) { should include(newer_post) }
+      its(:feed) { should include(older_post) }
+      # since the page is not refreshed the newly created post must not include
+      its(:feed) { should_not include(unfollowed_post) }
+    end
   end
 end

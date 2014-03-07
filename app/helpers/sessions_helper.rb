@@ -31,6 +31,18 @@ module SessionsHelper
     !current_user.nil?
   end
   
+  def signed_in_user
+    unless signed_in?
+      store_location
+      redirect_to signin_url, notice: "Please sign in"
+    end
+  end
+  
+  def correct_user
+    @user = User.find(params[:id])
+    redirect_to root_url, notice: "No permissions to access this page" unless current_user?(@user)
+  end
+  
   def redirect_back_or(default)
     redirect_to(session[:return_to] || default)
     session.delete(:return_to)
