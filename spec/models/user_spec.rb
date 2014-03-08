@@ -4,12 +4,18 @@ describe User do
   before {@user = User.new(email: "testuser@test.com", name: "Test User", password: "testPassword", password_confirmation: "testPassword")}
   subject {@user}
   it { should respond_to(:name) }
-  it { should respond_to(:email)}
+  it { should respond_to(:email) }
   it { should respond_to(:password_digest) }
   it { should respond_to(:password) }
   it { should respond_to(:remember_token) }
   it { should respond_to(:password_confirmation) }
-  it { should respond_to(:microposts)}
+  it { should respond_to(:microposts) }
+  it { should respond_to(:feed) }
+  it { should respond_to(:relationships) }
+  it { should respond_to(:followers) }
+  it { should respond_to(:followed_users) }
+  it { should respond_to(:following?) }
+  it { should respond_to(:follow!) }
   
   it {should be_valid}
   
@@ -118,11 +124,45 @@ describe User do
       let(:unfollowed_post) do
         FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
       end
+      let(:followed_user) { FactoryGirl.create(:user) }
+      before do
+        @user.follow!(followed_user)
+        3.times { followed_user.microposts.create!(content: "Lorem ipsum") }
+      end
+      
 
       its(:feed) { should include(newer_post) }
       its(:feed) { should include(older_post) }
       # since the page is not refreshed the newly created post must not include
       its(:feed) { should_not include(unfollowed_post) }
+      its(:feed) do
+        followed_user.microposts.each do |micropost|
+          should include(micropost)
+        end
+      end
+    end
+  end
+  
+  describe "following" do
+    let(:followed) {FactoryGirl.create(:user)}
+    before do
+      @user.save
+      @user.follow!(followed)
+    end
+    
+    it {should be_following(followed)}
+    its(:followed_users) {should include(followed)}
+    
+    describe "followed user" do
+      subject {followed}
+      its(:followers) {should include(@user)}
+    end
+    
+    describe "and unfollowing" do
+      before {@user.unfollow!(followed)}
+      
+      it {should_not be_following(followed)}
+      its(:followed_users) {should_not include(followed)}
     end
   end
 end
